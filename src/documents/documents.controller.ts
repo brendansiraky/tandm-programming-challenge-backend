@@ -1,7 +1,6 @@
-import { Controller, Delete, Get, NotAcceptableException, Param, Post, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, NotAcceptableException, Param, Post, Request, UnauthorizedException, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer'
-import * as fs from 'fs'
 
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { DocumentsService } from './documents.service';
@@ -13,15 +12,24 @@ export class DocumentsController {
     ) { }
 
     @UseGuards(JwtAuthGuard)
-    @Get()
-    async getAll() {
-        return await this.getAll()
-    }
-
-    @UseGuards(JwtAuthGuard)
     @Get('mine')
     async getMine(@Request() req: any) {
         return await this.documentsService.getMine(req.user.id)
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    async getDocument(@Param('id') id: number, @Request() req: any) {
+        try {
+            const documentIsMine = await this.documentsService.checkIsMine(id, req.user.id)
+            if (documentIsMine) {
+                return await this.documentsService.getDocument(id, req.user.id)
+            } else {
+                throw new UnauthorizedException()
+            }
+        } catch (error) {
+            throw new NotAcceptableException()
+        }
     }
 
     @UseGuards(JwtAuthGuard)
@@ -31,10 +39,11 @@ export class DocumentsController {
             const documentIsMine = await this.documentsService.checkIsMine(id, req.user.id)
             if (documentIsMine) {
                 return await this.documentsService.delete(id)
+            } else {
+                throw new UnauthorizedException()
             }
-            else throw new NotAcceptableException
         } catch (error) {
-            throw new NotAcceptableException
+            throw new NotAcceptableException()
         }
     }
 

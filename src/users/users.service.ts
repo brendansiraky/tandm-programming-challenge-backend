@@ -1,8 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
+
+import { Not } from "typeorm"
 
 @Injectable()
 export class UsersService {
@@ -10,6 +12,14 @@ export class UsersService {
         @InjectRepository(User)
         private userRepository: Repository<User>,
     ) {}
+
+    async getAllExceptMe(userId: number) {
+        return await this.userRepository.find({
+            where: {
+                id: Not(userId)
+            }
+        })
+    }
 
     async getUserbyUsername(username: string) {
         const [user] = await this.userRepository.find({

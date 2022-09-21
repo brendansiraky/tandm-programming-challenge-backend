@@ -4,7 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { typeOrmConfig } from './config/typeorm.config';
 import { UsersModule } from './users/users.module';
 import { DocumentsModule } from './documents/documents.module';
-import { StorageController } from './storage/storage.controller';
+import { SharedDocumentsModule } from './shared_documents/shared_documents.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
 	imports: [
@@ -12,7 +13,8 @@ import { StorageController } from './storage/storage.controller';
 		UsersModule,
 		AuthModule,
 		DocumentsModule,
+		SharedDocumentsModule,
+		StorageModule,
 	],
-	controllers: [StorageController],
 })
 export class AppModule { }
