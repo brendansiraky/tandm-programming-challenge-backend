@@ -1,11 +1,15 @@
 ## Setup
 
-1. Insall the packages
+### Requirements
+- docker
+- docker-compose
+
+1. Build the Docker Image
 ```bash
-npm install
+docker build -t tandm-programming-challenge .
 ```
 
-2. Start the project
+2. Start the Docker Container
 ```bash
-npm run start
+docker-compose up
 ```
