@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,12 +30,26 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto) {
+        const userExists = await this.checkIfUserExists(createUserDto.username)
+
+        if (userExists) {
+            throw new HttpException('User already exists', HttpStatus.NOT_ACCEPTABLE)
+        }
+
         try {
             await this.userRepository.save(createUserDto)
             return HttpStatus.CREATED
         } catch (error) {
-            return HttpStatus.NOT_ACCEPTABLE
+            throw new NotAcceptableException()
         }
+    }
+
+    async checkIfUserExists(username: string) {
+        const user = await this.userRepository.findOne({
+            where: { username }
+        })
+
+        return !!user
     }
 
 }
